@@ -1,0 +1,57 @@
+//Form Start//
+<form name="paypal" id="paypal" method="post" onsubmit="showLoader()"  action="https://www.sandbox.paypal.com/cgi-bin/webscr">
+	<input type="hidden" name="cmd" value="_xclick" />
+	<input type="hidden" name="currency_code" value="USD" />
+	<input type="hidden" name="business" value="chinmay235-facilitor@gmail.com" />
+	<input type="hidden" name="item_name" value="Give Item name" />
+	<input type="hidden" name="quantity" id="quantity" value="11" />	
+	<input type="hidden" name="amount" id="amount" value="1000.00" />                
+	<input type="hidden" name="return" value="<?php echo HTTP_ROOT . "events/print_ticket/" . $getEvent['Event']['id'] . "/" . $uniq_id; ?>" /> <!--Success Page-->
+	<input type="hidden" name="cancel_return" value="<?php echo HTTP_ROOT . "events_by_city"; ?>" /><!--Listing Page-->
+	<input type="hidden" name="notify_url" id="notify_url" value="<?php echo HTTP_ROOT . 'events/paypal/' . $user_id . '/' . $uniq_id . '/?action=ipn'; ?>" />
+	<span style="display:none" id="loader_image">
+		<img alt="Processing..." rel="tooltip" src="<?php echo HTTP_ROOT; ?>img/loader_big.gif" data-original-title="Processing..."><br>
+	</span>                                   
+	<input class="buystamp" style="width: 120px;" id="paypal_btn" type="submit" name="purchase" value="" />
+</form>         
+//Form End//
+
+
+
+//Testing Account//
+debadas00@gmail.com
+iloveyou_143
+Merchat Account: chinmay235-facilitor@gmail.com
+//Testing Account//
+
+//Notify Page code//
+public function paypal($user_id,$unique_id,$event_id,$quantity,$amount){
+		$this->layout='';
+		App::import('Vendor', 'Paypal/paypal_class');
+		$p = new paypal_class();
+		if (empty($_GET['action'])) {
+                    $_GET['action'] = 'process'; 
+                }                
+		switch($_GET['action']) {
+			case 'process':                            
+			break;			
+			case 'success':	                            
+			break;			
+			case 'cancel':                            
+			break;			
+			case 'ipn':   
+			if($p->validate_ipn()){
+                            $data = array('user_id'=>$user_id,'unique_id'=>$unique_id,'event_id'=>$event_id,'no_of_tickets'=>$quantity,'purchase_amount'=>$amount);   
+                            $to = "pradeepta20@gmail.com";
+                            $subject = "Transaction Under Proccess";
+                            $message = "Hello! This is a simple email message./"."Uid=".$user_id."/"."UniqId".$unique_id."/"."Event Id=".$event_id."/"."Qnty=".$quantity."/"."Pam=".$amount;
+                            $from = "someonelse@example.com";
+                            mail($to,$subject,$message,"From: $from");
+                            $this->TicketBook->bookTicket($data);           
+                       	}
+			break;
+		}
+                
+		exit;
+	}  
+	//Notify Page code//
